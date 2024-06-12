@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
+import { RenderOnlyOn } from '../../../components';
 import { useParams } from './rss-feed.params';
 import { useRssFeed } from './rss-feed.parser';
 
@@ -102,36 +103,38 @@ export function RssFeedWidget() {
   }
 
   return (
-    <div className="max-h-full w-full bg-bg-primary flex flex-col">
-      <div className="shadow-md">
-        {(() => {
-          const renderer = resolveHeaderRendererForItem(data);
+    <RenderOnlyOn device="desktop">
+      <div className="max-h-full w-full bg-bg-primary flex flex-col">
+        <div className="shadow-md">
+          {(() => {
+            const renderer = resolveHeaderRendererForItem(data);
 
-          if (renderer == null) {
-            return null;
-          }
+            if (renderer == null) {
+              return null;
+            }
 
-          return renderer(data);
-        })()}
+            return renderer(data);
+          })()}
+        </div>
+        <div className="max-h-full w-full overflow-y-auto overflow-x-hidden flex flex-col gap-4 p-4 place-items-center shadow-inner">
+          {data.items.map((item) => {
+            const renderer = resolveContentRendererForItem(item);
+
+            if (renderer == null) {
+              return null;
+            }
+
+            return (
+              <div
+                key={item.guid}
+                className="max-w-2xl w-full min-w m-4 p-4 bg-white shadow-sm"
+              >
+                {renderer(item)}
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="max-h-full w-full overflow-y-auto overflow-x-hidden flex flex-col gap-4 p-4 place-items-center shadow-inner">
-        {data.items.map((item) => {
-          const renderer = resolveContentRendererForItem(item);
-
-          if (renderer == null) {
-            return null;
-          }
-
-          return (
-            <div
-              key={item.guid}
-              className="max-w-2xl w-full min-w m-4 p-4 bg-white shadow-sm"
-            >
-              {renderer(item)}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    </RenderOnlyOn>
   );
 }
